@@ -6,13 +6,25 @@ public class User {
 
     private String last_name;
 
+    private String email;
+
     private String avatar;
 
-    public User(int id, String first_name, String last_name, String avatar) {
+    public User(int id, String first_name, String last_name, String email, String avatar) {
         this.id = id;
         this.first_name = first_name;
         this.last_name = last_name;
+        this.email = email;
         this.avatar = avatar;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public User setEmail(String email) {
+        this.email = email;
+        return this;
     }
 
     public User() {
