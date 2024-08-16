@@ -13,7 +13,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private UserController userController;
-    private UserAdapter userAdapter;
+    private UserRecyclerViewAdapter userAdapter;
     private RecyclerView recyclerView;
     private boolean isLoading = false;
     private boolean hasMorePages = true;
@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         userController = new UserController();
-        userAdapter = new UserAdapter();
+        userAdapter = new UserRecyclerViewAdapter(this);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(userAdapter);
