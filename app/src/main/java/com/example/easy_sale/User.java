@@ -1,5 +1,6 @@
 package com.example.easy_sale;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -7,11 +8,15 @@ import androidx.room.PrimaryKey;
 public class User {
     @PrimaryKey
     private int id;
+    @ColumnInfo
     private String first_name;
+    @ColumnInfo
     private String last_name;
+    @ColumnInfo
     private String email;
+    @ColumnInfo
     private String avatar;
-//    private String name; // need to replace to another class i think with extend ?
+    @ColumnInfo
     private String updatedAt;
 
     public User() {
