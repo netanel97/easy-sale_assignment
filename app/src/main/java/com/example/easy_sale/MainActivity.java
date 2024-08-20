@@ -16,11 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class MainActivity extends AppCompatActivity implements
-        UserRecyclerViewAdapter.OnUserEditClickListener,
-        UserRecyclerViewAdapter.OnUserDeleteClickListener,
-        UserRecyclerViewAdapter.OnItemLongClickListener,
-        UserRecyclerViewAdapter.OnItemClickListener {
+public class MainActivity extends AppCompatActivity {
 
     private UserViewModel userViewModel;
     private UserRecyclerViewAdapter userAdapter;
@@ -39,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements
         // Setup RecyclerView
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        userAdapter = new UserRecyclerViewAdapter(this, this, this, this, this);
+        userAdapter = new UserRecyclerViewAdapter(this);
         recyclerView.setAdapter(userAdapter);
 
         // Setup FAB
@@ -77,15 +73,16 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         userViewModel.loadUsers();
+
+        userAdapter.setItemClickListener(position -> deselectItem(), position -> {
+            userAdapter.setSelectedPosition(position);
+            isItemSelected = true;
+            fab.setVisibility(View.GONE);
+        }, user -> deleteUser(user), user -> openEditUserDialog(user));
     }
 
-    @Override
-    public void onUserEditClick(User user) {
-        openEditUserDialog(user);
-    }
 
-    @Override
-    public void onUserDeleteClick(User user) {
+    public void deleteUser(User user) {
         new AlertDialog.Builder(this)
                 .setTitle("Delete User")
                 .setMessage("Are you sure you want to delete this user?")
@@ -97,19 +94,6 @@ public class MainActivity extends AppCompatActivity implements
                 .show();
     }
 
-    @Override
-    public void onItemLongClick(int position) {
-        userAdapter.setSelectedPosition(position);
-        isItemSelected = true;
-        fab.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void onItemClick(int position) {
-        if (isItemSelected) {
-            deselectItem();
-        }
-    }
 
     private void deselectItem() {
         userAdapter.clearSelection();

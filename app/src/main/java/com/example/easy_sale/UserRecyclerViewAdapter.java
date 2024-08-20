@@ -42,16 +42,10 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
         void onItemClick(int position);
     }
 
-    public UserRecyclerViewAdapter(Context context, OnUserEditClickListener editListener,
-                                   OnUserDeleteClickListener deleteListener,
-                                   OnItemLongClickListener longListener,
-                                   OnItemClickListener clickListener) {
+    public UserRecyclerViewAdapter(Context context) {
         this.context = context;
         this.users = new ArrayList<>();
-        this.editClickListener = editListener;
-        this.deleteClickListener = deleteListener;
-        this.longClickListener = longListener;
-        this.clickListener = clickListener;
+
     }
 
     @NonNull
@@ -67,10 +61,14 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
         holder.bind(user, position == selectedPosition);
     }
 
-//    public HomeRecyclerViewAdapter setCategoryItemClickListener(FoodItemClickListener foodItemClickListener) {
-//        this.listener = foodItemClickListener;
-//        return this;
-//    }
+    public UserRecyclerViewAdapter setItemClickListener(OnItemClickListener onItemClickListener,OnItemLongClickListener onItemLongClickListener
+            ,OnUserDeleteClickListener onUserDeleteClickListener, OnUserEditClickListener onUserEditClickListener ) {
+        this.clickListener = onItemClickListener;
+        this.longClickListener = onItemLongClickListener;
+        this.deleteClickListener = onUserDeleteClickListener;
+        this.editClickListener = onUserEditClickListener;
+        return this;
+    }
 
 
     @Override
