@@ -14,10 +14,19 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MainActivity extends AppCompatActivity implements UserRecyclerViewAdapter.OnUserEditClickListener {
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+public class MainActivity extends AppCompatActivity implements
+        UserRecyclerViewAdapter.OnUserEditClickListener,
+        UserRecyclerViewAdapter.OnUserDeleteClickListener,
+        UserRecyclerViewAdapter.OnItemLongClickListener,
+        UserRecyclerViewAdapter.OnItemClickListener {
+
     private UserViewModel userViewModel;
     private UserRecyclerViewAdapter userAdapter;
     private RecyclerView recyclerView;
+    private FloatingActionButton fab;
+    private boolean isItemSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +39,11 @@ public class MainActivity extends AppCompatActivity implements UserRecyclerViewA
         // Setup RecyclerView
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        userAdapter = new UserRecyclerViewAdapter(this, this);
+        userAdapter = new UserRecyclerViewAdapter(this, this, this, this, this);
         recyclerView.setAdapter(userAdapter);
+
+        // Setup FAB
+        fab = findViewById(R.id.fab);
 
         // Observe users LiveData
         userViewModel.getUsers().observe(this, users -> {
@@ -72,6 +84,40 @@ public class MainActivity extends AppCompatActivity implements UserRecyclerViewA
         openEditUserDialog(user);
     }
 
+    @Override
+    public void onUserDeleteClick(User user) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete User")
+                .setMessage("Are you sure you want to delete this user?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    userViewModel.deleteUser();
+                    deselectItem();
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    @Override
+    public void onItemLongClick(int position) {
+        userAdapter.setSelectedPosition(position);
+        isItemSelected = true;
+        fab.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        if (isItemSelected) {
+            deselectItem();
+        }
+    }
+
+    private void deselectItem() {
+        userAdapter.clearSelection();
+        isItemSelected = false;
+        fab.setVisibility(View.VISIBLE);
+    }
+
+
     private void openEditUserDialog(User user) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Edit User");
@@ -101,12 +147,14 @@ public class MainActivity extends AppCompatActivity implements UserRecyclerViewA
 
             user.setEmail(newEmail);
             user.setFirst_name(newFirstName);
-            Log.d("pttt","user" + user);
+            Log.d("pttt", "user" + user);
             user.setLast_name(newLastName);
             user.setAvatar(newAvatar);
 
             // Call ViewModel to update user
             userViewModel.updateUser(user);
+            deselectItem();
+
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 

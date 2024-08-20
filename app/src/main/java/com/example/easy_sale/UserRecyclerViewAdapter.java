@@ -20,17 +20,38 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
 
     private List<User> users;
     private Context context;
-
     private OnUserEditClickListener editClickListener;
+    private OnUserDeleteClickListener deleteClickListener;
+    private OnItemLongClickListener longClickListener;
+    private OnItemClickListener clickListener;
+    private int selectedPosition = RecyclerView.NO_POSITION;
 
     public interface OnUserEditClickListener {
         void onUserEditClick(User user);
     }
-    public UserRecyclerViewAdapter(Context context, OnUserEditClickListener listener) {
+
+    public interface OnUserDeleteClickListener {
+        void onUserDeleteClick(User user);
+    }
+
+    public interface OnItemLongClickListener {
+        void onItemLongClick(int position);
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    public UserRecyclerViewAdapter(Context context, OnUserEditClickListener editListener,
+                                   OnUserDeleteClickListener deleteListener,
+                                   OnItemLongClickListener longListener,
+                                   OnItemClickListener clickListener) {
         this.context = context;
         this.users = new ArrayList<>();
-        this.editClickListener = listener;
-
+        this.editClickListener = editListener;
+        this.deleteClickListener = deleteListener;
+        this.longClickListener = longListener;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -43,8 +64,14 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = users.get(position);
-        holder.bind(user);
+        holder.bind(user, position == selectedPosition);
     }
+
+//    public HomeRecyclerViewAdapter setCategoryItemClickListener(FoodItemClickListener foodItemClickListener) {
+//        this.listener = foodItemClickListener;
+//        return this;
+//    }
+
 
     @Override
     public int getItemCount() {
@@ -56,12 +83,25 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
         notifyDataSetChanged();
     }
 
+    public void setSelectedPosition(int position) {
+        int previousSelected = selectedPosition;
+        selectedPosition = position;
+        notifyItemChanged(previousSelected);
+        notifyItemChanged(selectedPosition);
+    }
+
+    public void clearSelection() {
+        int previousSelected = selectedPosition;
+        selectedPosition = RecyclerView.NO_POSITION;
+        notifyItemChanged(previousSelected);
+    }
+
     class UserViewHolder extends RecyclerView.ViewHolder {
         private TextView nameTextView;
         private TextView emailTextView;
         private ImageView avatarImageView;
         private Button editButton;
-
+        private Button deleteButton;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -69,11 +109,26 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
             emailTextView = itemView.findViewById(R.id.emailTextView);
             avatarImageView = itemView.findViewById(R.id.avatarImageView);
             editButton = itemView.findViewById(R.id.editButton);
+            deleteButton = itemView.findViewById(R.id.deleteButton);
 
+            itemView.setOnLongClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    longClickListener.onItemLongClick(position);
+                    return true;
+                }
+                return false;
+            });
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    clickListener.onItemClick(position);
+                }
+            });
         }
 
-
-        public void bind(User user) {
+        public void bind(User user, boolean isSelected) {
             nameTextView.setText(user.getFirst_name() + " " + user.getLast_name());
             emailTextView.setText(user.getEmail());
             Glide.with(itemView.getContext())
@@ -81,13 +136,20 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
                     .circleCrop()
                     .into(avatarImageView);
 
+            editButton.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+            deleteButton.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+
             editButton.setOnClickListener(v -> {
                 if (editClickListener != null) {
                     editClickListener.onUserEditClick(user);
                 }
             });
 
+            deleteButton.setOnClickListener(v -> {
+                if (deleteClickListener != null) {
+                    deleteClickListener.onUserDeleteClick(user);
+                }
+            });
         }
-
     }
 }

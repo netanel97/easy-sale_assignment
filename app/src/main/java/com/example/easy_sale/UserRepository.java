@@ -90,7 +90,7 @@ public class UserRepository {
                         user.setFirst_name(updateResponse.getFirst_name());
 
                     }
-                    if (updateResponse.getLast_name() != null && !updateResponse.getLast_name().isEmpty()) {
+                    if (updateResponse.getLast_name() != null && updateResponse.getLast_name().isEmpty()) {
                         user.setLast_name(updateResponse.getLast_name());
 
                     }

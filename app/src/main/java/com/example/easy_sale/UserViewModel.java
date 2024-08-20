@@ -86,5 +86,6 @@ public class UserViewModel extends AndroidViewModel {
     public void cleanTask(){
         repository.cleanup();
     }
+    public void deleteUser(){}
 }
 
