@@ -8,15 +8,15 @@ import androidx.room.PrimaryKey;
 public class User {
     @PrimaryKey
     private int id;
-    @ColumnInfo
+    @ColumnInfo(name = "first_name")
     private String first_name;
-    @ColumnInfo
+    @ColumnInfo(name = "last_name")
     private String last_name;
-    @ColumnInfo
+    @ColumnInfo(name = "email")
     private String email;
-    @ColumnInfo
+    @ColumnInfo(name = "avatar")
     private String avatar;
-    @ColumnInfo
+    @ColumnInfo(name = "updatedAt")
     private String updatedAt;
 
     public User() {
