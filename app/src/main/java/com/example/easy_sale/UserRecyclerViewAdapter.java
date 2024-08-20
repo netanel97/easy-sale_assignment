@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,65 +21,73 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
     private List<User> users;
     private Context context;
 
+    private OnUserEditClickListener editClickListener;
 
-    public UserRecyclerViewAdapter(Context context) {
+    public interface OnUserEditClickListener {
+        void onUserEditClick(User user);
+    }
+    public UserRecyclerViewAdapter(Context context, OnUserEditClickListener listener) {
         this.context = context;
         this.users = new ArrayList<>();
+        this.editClickListener = listener;
+
     }
 
     @NonNull
     @Override
-    public UserRecyclerViewAdapter.UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View contactView = inflater.inflate(R.layout.item_card, parent, false);
-        UserViewHolder viewHolder = new UserViewHolder(contactView);
-        return viewHolder;
+    public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_card, parent, false);
+        return new UserViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UserRecyclerViewAdapter.UserViewHolder holder, int position) {
-        User user = getItem(position);
-        bind(user, holder);
-    }
-
-    private void bind(User user, UserViewHolder holder) {
-        holder.nameTextView.setText(user.getFirst_name() + " " + user.getLast_name());
-        holder.emailTextView.setText(user.getEmail());
-        Glide.with(holder.itemView.getContext())
-                .load(user.getAvatar())
-                .circleCrop()
-                .into(holder.avatarImageView);
-
-    }
-
-    private User getItem(int position) {
-        ArrayList<User> users = new ArrayList<>(this.users);
-        return users.get(position);
+    public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
+        User user = users.get(position);
+        holder.bind(user);
     }
 
     @Override
     public int getItemCount() {
-        return users == null ? 0 : users.size();
+        return users.size();
     }
 
-    public void addUsers(List<User> newUsers) {
-        int startPosition = users.size();
-        users.addAll(newUsers);
-        notifyItemRangeInserted(startPosition, newUsers.size());
+    public void setUsers(List<User> users) {
+        this.users = users;
+        notifyDataSetChanged();
     }
 
-
-    public class UserViewHolder extends RecyclerView.ViewHolder {
+    class UserViewHolder extends RecyclerView.ViewHolder {
         private TextView nameTextView;
         private TextView emailTextView;
         private ImageView avatarImageView;
+        private Button editButton;
+
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.nameTextView);
             emailTextView = itemView.findViewById(R.id.emailTextView);
             avatarImageView = itemView.findViewById(R.id.avatarImageView);
-        }
-    }
+            editButton = itemView.findViewById(R.id.editButton);
 
+        }
+
+
+        public void bind(User user) {
+            nameTextView.setText(user.getFirst_name() + " " + user.getLast_name());
+            emailTextView.setText(user.getEmail());
+            Glide.with(itemView.getContext())
+                    .load(user.getAvatar())
+                    .circleCrop()
+                    .into(avatarImageView);
+
+            editButton.setOnClickListener(v -> {
+                if (editClickListener != null) {
+                    editClickListener.onUserEditClick(user);
+                }
+            });
+
+        }
+
+    }
 }
