@@ -86,6 +86,22 @@ public class UserViewModel extends AndroidViewModel {
     public void cleanTask(){
         repository.cleanup();
     }
-    public void deleteUser(){}
+    public void deleteUser(User user) {
+        repository.deleteUser(user, new UserRepository.RepositoryCallback<User>() {
+            @Override
+            public void onSuccess(User result) {
+                List<User> currentList = users.getValue();
+                if (currentList != null) {
+                    currentList.remove(result);
+                    users.setValue(currentList);
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                error.setValue(errorMessage);
+            }
+        });
+    }
 }
 

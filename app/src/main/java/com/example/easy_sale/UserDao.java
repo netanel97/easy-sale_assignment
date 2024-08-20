@@ -1,6 +1,7 @@
 package com.example.easy_sale;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -24,5 +25,18 @@ public interface UserDao {
 
     @Query("SELECT updatedAt FROM users WHERE id = :userId")
     String getLastUpdateTimeForUser(int userId);
+
+    @Delete
+    void deleteUser(User user);
+
+
+    @Insert
+    void insertDeletedUserId(DeletedUser deletedUser);
+
+    @Query("SELECT * FROM deleted_users WHERE userId = :userId")
+    DeletedUser getDeletedUser(int userId);
+
+    @Query("DELETE FROM deleted_users WHERE userId = :userId")
+    void removeDeletedUser(int userId);
 }
 

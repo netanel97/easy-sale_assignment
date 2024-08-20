@@ -44,7 +44,7 @@ public class UserRepository {
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<User> users = response.body().getData();
-                    mergeAndSaveUsers(users, callback);
+                    filterAndMergeUsers(users, callback);
                 } else {
                     callback.onError("Failed to fetch users");
                 }
@@ -57,28 +57,60 @@ public class UserRepository {
         });
     }
 
-    private void mergeAndSaveUsers(List<User> apiUsers, final RepositoryCallback<List<User>> callback) {
+    private void filterAndMergeUsers(List<User> apiUsers, final RepositoryCallback<List<User>> callback) {
         CompletableFuture.supplyAsync(() -> {
-            List<User> mergedUsers = new ArrayList<>();
+            List<User> filteredUsers = new ArrayList<>();
             for (User apiUser : apiUsers) {
-                String localUpdateTime = userDao.getLastUpdateTimeForUser(apiUser.getId());
-                if (localUpdateTime != null && !localUpdateTime.isEmpty()) {// user changed
-                    User localUser = userDao.getUserById(apiUser.getId());
-                    if (localUser != null) {
-                        mergedUsers.add(localUser);
+                DeletedUser deletedUser = userDao.getDeletedUser(apiUser.getId());
+                if (deletedUser == null) { // not found in the deleted table
+                    String localUpdateTime = userDao.getLastUpdateTimeForUser(apiUser.getId());
+                    if (localUpdateTime != null && !localUpdateTime.isEmpty()) {
+                        User localUser = userDao.getUserById(apiUser.getId());
+                        if (localUser != null) {
+                            filteredUsers.add(localUser);
+                        } else {
+                            filteredUsers.add(apiUser);
+                        }
                     } else {
-                        mergedUsers.add(apiUser);
+                        filteredUsers.add(apiUser);
                     }
-                } else {
-                    mergedUsers.add(apiUser);
                 }
             }
-            userDao.insertUsers(mergedUsers);
-            return mergedUsers;
+            userDao.insertUsers(filteredUsers);
+            return filteredUsers;
         }, executorService).thenAcceptAsync(mergedUsers -> {
             mainHandler.post(() -> callback.onSuccess(mergedUsers));
         }, executorService);
     }
+
+
+
+    public void deleteUser(User user, final RepositoryCallback<User> callback) {
+        userAPI.deleteUser(user.getId()).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.code() == 204) {
+                    deleteUserFromDbAndMarkAsDeleted(user, callback);
+                } else {
+                    callback.onError("Failed to delete user from server");
+                }
+            }
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                callback.onError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void deleteUserFromDbAndMarkAsDeleted(final User user, final RepositoryCallback<User> callback) {
+        CompletableFuture.runAsync(() -> {
+            userDao.deleteUser(user);
+            userDao.insertDeletedUserId(new DeletedUser(user.getId()));
+        }, executorService).thenRun(() -> {
+            mainHandler.post(() -> callback.onSuccess(user));
+        });
+    }
+
 
     public void updateUser(User user, final RepositoryCallback<User> callback) {
         userAPI.updateUser(user.getId(), user).enqueue(new Callback<User>() {
@@ -122,6 +154,7 @@ public class UserRepository {
             mainHandler.post(() -> callback.onSuccess(user));
         });
     }
+
 
     public interface RepositoryCallback<T> {
         void onSuccess(T result);

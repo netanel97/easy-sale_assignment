@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
     private UserRecyclerViewAdapter userAdapter;
     private RecyclerView recyclerView;
     private FloatingActionButton fab;
-    private boolean isItemSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
 
         userAdapter.setItemClickListener(position -> deselectItem(), position -> {
             userAdapter.setSelectedPosition(position);
-            isItemSelected = true;
             fab.setVisibility(View.GONE);
         }, user -> deleteUser(user), user -> openEditUserDialog(user));
     }
@@ -83,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle("Delete User")
                 .setMessage("Are you sure you want to delete this user?")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    userViewModel.deleteUser();
+                    userViewModel.deleteUser(user);
                     deselectItem();
                 })
                 .setNegativeButton("No", null)
@@ -93,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void deselectItem() {
         userAdapter.clearSelection();
-        isItemSelected = false;
         fab.setVisibility(View.VISIBLE);
     }
 
