@@ -23,6 +23,8 @@ public interface UserDao {
     @Query("SELECT * FROM users WHERE id = :userId")
     User getUserById(int userId);
 
+    @Query("SELECT * FROM users WHERE email = :email")
+    User getUserByEmail(String email);
     @Query("SELECT updatedAt FROM users WHERE id = :userId")
     String getLastUpdateTimeForUser(int userId);
 
@@ -31,12 +33,18 @@ public interface UserDao {
 
 
     @Insert
+    long insertUser(User user);
+
+
+    @Insert
     void insertDeletedUserId(DeletedUser deletedUser);
 
     @Query("SELECT * FROM deleted_users WHERE userId = :userId")
     DeletedUser getDeletedUser(int userId);
 
-    @Query("DELETE FROM deleted_users WHERE userId = :userId")
-    void removeDeletedUser(int userId);
+
+    @Query("SELECT * FROM users WHERE createdAt IS NOT NULL")
+    List<User> getRelevantUsers();
+
 }
 

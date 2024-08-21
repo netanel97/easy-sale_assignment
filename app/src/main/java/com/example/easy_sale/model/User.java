@@ -19,15 +19,27 @@ public class User {
     @ColumnInfo(name = "updatedAt")
     private String updatedAt;
 
+    @ColumnInfo(name = "createdAt")
+    private String createdAt;
     public User() {
     }
 
-    public User(int id, String first_name, String last_name, String email, String avatar) {
+    public User(int id, String first_name, String last_name, String email, String avatar, String updatedAt, String createdAt) {
         this.id = id;
         this.first_name = first_name;
         this.last_name = last_name;
         this.email = email;
         this.avatar = avatar;
+        this.updatedAt = updatedAt;
+        this.createdAt = createdAt;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 
     public int getId() {
@@ -88,6 +100,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", avatar='" + avatar + '\'' +
                 ", updatedAt='" + updatedAt + '\'' +
+                ", createdAt='" + createdAt + '\'' +
                 '}';
     }
 }

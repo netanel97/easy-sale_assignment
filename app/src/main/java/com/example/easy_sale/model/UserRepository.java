@@ -43,7 +43,7 @@ public class UserRepository {
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<User> users = response.body().getData();
-                    filterAndMergeUsers(users, callback);
+                    filterAndMergeUsers(page, users, callback);
                 } else {
                     callback.onError("Failed to fetch users");
                 }
@@ -56,9 +56,14 @@ public class UserRepository {
         });
     }
 
-    private void filterAndMergeUsers(List<User> apiUsers, final RepositoryCallback<List<User>> callback) {
+    private void filterAndMergeUsers(int page, List<User> apiUsers, final RepositoryCallback<List<User>> callback) {
         CompletableFuture.supplyAsync(() -> {
             List<User> filteredUsers = new ArrayList<>();
+            if (page == 1) {
+                List<User> relevantUsers = userDao.getRelevantUsers();
+                filteredUsers.addAll(relevantUsers);
+            }
+
             for (User apiUser : apiUsers) {
                 DeletedUser deletedUser = userDao.getDeletedUser(apiUser.getId());
                 if (deletedUser == null) { // not found in the deleted table
@@ -82,6 +87,41 @@ public class UserRepository {
         }, executorService);
     }
 
+    public void createNewUser(User user, final RepositoryCallback<User> callback) {
+        userAPI.createUser(user).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    User createdUser = response.body();
+                    checkAndInsertUser(createdUser, callback);
+                } else {
+                    callback.onError("Failed to create user");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                callback.onError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void checkAndInsertUser(final User user, final RepositoryCallback<User> callback) {
+        CompletableFuture.supplyAsync(() -> {
+            User existingUser = userDao.getUserByEmail(user.getEmail());
+            if (existingUser != null) {
+                callback.onError("Cannot create user with the same email in the list");
+            }
+            userDao.insertUser(user);
+            return user;
+        }, executorService).thenAcceptAsync(insertedUser -> {
+            if (insertedUser == null) {
+                callback.onError("Error to insert user");
+            } else {
+                callback.onSuccess(insertedUser);
+            }
+        }, executorService);
+    }
 
 
     public void deleteUser(User user, final RepositoryCallback<User> callback) {
@@ -94,6 +134,7 @@ public class UserRepository {
                     callback.onError("Failed to delete user from server");
                 }
             }
+
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 callback.onError("Network error: " + t.getMessage());

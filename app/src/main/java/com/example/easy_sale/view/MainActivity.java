@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private UserViewModel userViewModel;
     private UserRecyclerViewAdapter userAdapter;
     private RecyclerView recyclerView;
-    private FloatingActionButton fab;
+    private FloatingActionButton add_user_fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +38,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         userAdapter = new UserRecyclerViewAdapter(this);
         recyclerView.setAdapter(userAdapter);
-        fab = findViewById(R.id.fab);
-
+        add_user_fab = findViewById(R.id.add_user_fab);
         // Observe users LiveData
         userViewModel.getUsers().observe(this, users -> {
             if (users != null) {
@@ -49,9 +48,11 @@ public class MainActivity extends AppCompatActivity {
         // Observe error LiveData
         userViewModel.getError().observe(this, error -> {
             if (error != null && !error.isEmpty()) {
-                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+                showToast(error);
+                userViewModel.clearError();
             }
         });
+
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -69,11 +70,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         userViewModel.loadUsers();
-
+        add_user_fab.setOnClickListener(view -> openUserDialog(null));
         userAdapter.setItemClickListener(position -> deselectItem(), position -> {
             userAdapter.setSelectedPosition(position);
-            fab.setVisibility(View.GONE);
-        }, user -> deleteUser(user), user -> openEditUserDialog(user));
+            add_user_fab.setVisibility(View.GONE);
+        }, user -> deleteUser(user), user -> openUserDialog(user));
     }
 
 
@@ -92,11 +93,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void deselectItem() {
         userAdapter.clearSelection();
-        fab.setVisibility(View.VISIBLE);
+        add_user_fab.setVisibility(View.VISIBLE);
     }
 
 
-    private void openEditUserDialog(User user) {
+    private void openUserDialog(User user) {
+        boolean isEditing = user != null;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_user, null);
         builder.setView(dialogView);
@@ -106,10 +108,13 @@ public class MainActivity extends AppCompatActivity {
         EditText lastNameEditText = dialogView.findViewById(R.id.lastNameEditText);
         EditText avatarEditText = dialogView.findViewById(R.id.avatarEditText);
 
-        initEditText(user, emailEditText, firstNameEditText, lastNameEditText, avatarEditText);
-        ImageButton closeButton = dialogView.findViewById(R.id.closeButton);
+        if (isEditing) {
+            initEditText(user, emailEditText, firstNameEditText, lastNameEditText, avatarEditText);
+        }
 
-        builder.setPositiveButton("Save", null);
+        ImageButton closeButton = dialogView.findViewById(R.id.closeButton);
+        builder.setTitle(isEditing ? "Edit User" : "Add New User");
+        builder.setPositiveButton(isEditing ? "Save" : "Add", null);
 
         AlertDialog dialog = builder.create();
 
@@ -117,17 +122,26 @@ public class MainActivity extends AppCompatActivity {
         dialog.setOnShowListener(dialogInterface -> {
             Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             positiveButton.setOnClickListener(view -> {
-                String newEmail = emailEditText.getText().toString().trim();
-                String newFirstName = firstNameEditText.getText().toString().trim();
-                String newLastName = lastNameEditText.getText().toString().trim();
-                String newAvatar = avatarEditText.getText().toString().trim();
+                String email = emailEditText.getText().toString().trim();
+                String firstName = firstNameEditText.getText().toString().trim();
+                String lastName = lastNameEditText.getText().toString().trim();
+                String avatar = avatarEditText.getText().toString().trim();
 
-                if (validateInput(newEmail, newFirstName, newLastName, newAvatar)) {
-                    user.setEmail(newEmail);
-                    user.setFirst_name(newFirstName);
-                    user.setLast_name(newLastName);
-                    user.setAvatar(newAvatar);
-                    userViewModel.updateUser(user);
+                if (validateInput(email, firstName, lastName, avatar)) {
+                    if (isEditing) {
+                        user.setEmail(email);
+                        user.setFirst_name(firstName);
+                        user.setLast_name(lastName);
+                        user.setAvatar(avatar);
+                        userViewModel.updateUser(user);
+                    } else {
+                        User newUser = new User();
+                        newUser.setEmail(email);
+                        newUser.setFirst_name(firstName);
+                        newUser.setLast_name(lastName);
+                        newUser.setAvatar(avatar);
+                        userViewModel.createUser(newUser);
+                    }
                     deselectItem();
                     dialog.dismiss();
                 }
@@ -136,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
         dialog.show();
     }
+
 
     private boolean validateInput(String email, String firstName, String lastName, String avatar) {
         if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {

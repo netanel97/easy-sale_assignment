@@ -105,5 +105,25 @@ public class UserViewModel extends AndroidViewModel {
             }
         });
     }
+    public void createUser(User user) {
+        repository.createNewUser(user, new UserRepository.RepositoryCallback<User>() {
+            @Override
+            public void onSuccess(User result) {
+                List<User> currentList = users.getValue();
+                if (currentList != null) {
+                    currentList.add(result);
+                    users.setValue(currentList);
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                error.setValue(errorMessage);
+            }
+        });
+    }
+    public void clearError() {
+        error.setValue(null);
+    }
 }
 
