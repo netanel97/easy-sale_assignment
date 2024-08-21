@@ -1,9 +1,8 @@
-package com.example.easy_sale;
+package com.example.easy_sale.model;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;

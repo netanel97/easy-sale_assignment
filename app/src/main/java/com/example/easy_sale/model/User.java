@@ -1,4 +1,4 @@
-package com.example.easy_sale;
+package com.example.easy_sale.model;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;

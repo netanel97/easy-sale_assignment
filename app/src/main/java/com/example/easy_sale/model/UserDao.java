@@ -1,4 +1,4 @@
-package com.example.easy_sale;
+package com.example.easy_sale.model;
 
 import androidx.room.Dao;
 import androidx.room.Delete;

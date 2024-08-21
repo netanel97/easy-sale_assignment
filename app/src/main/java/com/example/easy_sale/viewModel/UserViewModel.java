@@ -1,11 +1,13 @@
-package com.example.easy_sale;
+package com.example.easy_sale.viewModel;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import com.example.easy_sale.model.User;
+import com.example.easy_sale.model.UserRepository;
 
 import java.util.List;
 

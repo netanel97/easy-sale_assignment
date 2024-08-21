@@ -1,4 +1,4 @@
-package com.example.easy_sale;
+package com.example.easy_sale.view;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.easy_sale.R;
+import com.example.easy_sale.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
