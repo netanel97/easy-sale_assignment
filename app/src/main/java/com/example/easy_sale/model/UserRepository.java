@@ -93,7 +93,7 @@ public class UserRepository {
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     User createdUser = response.body();
-                    checkAndInsertUser(createdUser, callback);
+                    checkExistingUser(createdUser, callback);
                 } else {
                     callback.onError("Failed to create user");
                 }
@@ -106,21 +106,29 @@ public class UserRepository {
         });
     }
 
-    private void checkAndInsertUser(final User user, final RepositoryCallback<User> callback) {
+    private void checkExistingUser(final User user, final RepositoryCallback<User> callback) {
         CompletableFuture.supplyAsync(() -> {
             User existingUser = userDao.getUserByEmail(user.getEmail());
-            if (existingUser != null) {
-                callback.onError("Cannot create user with the same email in the list");
+            return existingUser == null;
+        }, executorService).thenAcceptAsync(isNewUser -> {
+            if (isNewUser) {
+                insertUser(user, callback);
+            } else {
+                mainHandler.post(() -> callback.onError("Cannot create user with the same email in the list"));
             }
+        }, executorService);
+    }
+
+    private void insertUser(final User user, final RepositoryCallback<User> callback) {
+        CompletableFuture.supplyAsync(() -> {
             userDao.insertUser(user);
             return user;
         }, executorService).thenAcceptAsync(insertedUser -> {
-            if (insertedUser == null) {
-                callback.onError("Error to insert user");
-            } else {
-                callback.onSuccess(insertedUser);
-            }
-        }, executorService);
+            mainHandler.post(() -> callback.onSuccess(insertedUser));
+        }, executorService).exceptionally(e -> {
+            mainHandler.post(() -> callback.onError("Error inserting user: " + e.getMessage()));
+            return null;
+        });
     }
 
 

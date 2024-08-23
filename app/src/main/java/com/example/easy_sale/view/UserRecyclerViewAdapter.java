@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -103,6 +104,9 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
         private Button editButton;
         private Button deleteButton;
 
+        private View itemBackground;
+
+
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.nameTextView);
@@ -110,6 +114,8 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
             avatarImageView = itemView.findViewById(R.id.avatarImageView);
             editButton = itemView.findViewById(R.id.editButton);
             deleteButton = itemView.findViewById(R.id.deleteButton);
+            itemBackground = itemView.findViewById(R.id.itemBackground);
+
 
             itemView.setOnLongClickListener(v -> {
                 int position = getAdapterPosition();
@@ -138,7 +144,9 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
 
             editButton.setVisibility(isSelected ? View.VISIBLE : View.GONE);
             deleteButton.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-
+            itemBackground.setBackgroundColor(isSelected ?
+                    ContextCompat.getColor(itemView.getContext(), R.color.selected_item_color) :
+                    ContextCompat.getColor(itemView.getContext(), android.R.color.transparent));
             editButton.setOnClickListener(v -> {
                 if (editClickListener != null) {
                     editClickListener.onUserEditClick(user);
