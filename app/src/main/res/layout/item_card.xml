@@ -33,7 +33,6 @@
             android:layout_marginStart="16dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/editButton"
             app:layout_constraintStart_toEndOf="@+id/avatarImageView"
             app:layout_constraintTop_toTopOf="@+id/avatarImageView"
             android:maxLines="1"
@@ -46,33 +45,10 @@
             android:layout_marginTop="4dp"
             app:layout_constraintStart_toStartOf="@+id/nameTextView"
             app:layout_constraintTop_toBottomOf="@+id/nameTextView"
-            app:layout_constraintEnd_toStartOf="@id/editButton"
             android:maxLines="1"
             tools:text="john.doe@example.com" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/editButton"
-            style="?attr/materialIconButtonFilledStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:icon="@drawable/edit_icon"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/deleteButton"
-            app:layout_constraintTop_toTopOf="parent"
-            app:backgroundTint="@color/button_color"
-            android:visibility="gone" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/deleteButton"
-            style="?attr/materialIconButtonFilledStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:icon="@drawable/trash_icon"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:backgroundTint="@color/button_color"
-            android:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

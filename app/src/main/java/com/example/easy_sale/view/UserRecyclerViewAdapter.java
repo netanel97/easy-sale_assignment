@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,19 +22,9 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
 
     private List<User> users;
     private Context context;
-    private OnUserEditClickListener editClickListener;
-    private OnUserDeleteClickListener deleteClickListener;
     private OnItemLongClickListener longClickListener;
     private OnItemClickListener clickListener;
     private int selectedPosition = RecyclerView.NO_POSITION;
-
-    public interface OnUserEditClickListener {
-        void onUserEditClick(User user);
-    }
-
-    public interface OnUserDeleteClickListener {
-        void onUserDeleteClick(User user);
-    }
 
     public interface OnItemLongClickListener {
         void onItemLongClick(int position);
@@ -48,7 +37,6 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
     public UserRecyclerViewAdapter(Context context) {
         this.context = context;
         this.users = new ArrayList<>();
-
     }
 
     @NonNull
@@ -64,23 +52,13 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
         holder.bind(user, position == selectedPosition);
     }
 
-    public UserRecyclerViewAdapter setItemClickListener(OnItemClickListener onItemClickListener,OnItemLongClickListener onItemLongClickListener
-            ,OnUserDeleteClickListener onUserDeleteClickListener, OnUserEditClickListener onUserEditClickListener ) {
-        this.clickListener = onItemClickListener;
-        this.longClickListener = onItemLongClickListener;
-        this.deleteClickListener = onUserDeleteClickListener;
-        this.editClickListener = onUserEditClickListener;
-        return this;
-    }
-
-
     @Override
     public int getItemCount() {
         return users.size();
     }
 
     public void setUsers(List<User> users) {
-        this.users = users;
+        this.users = new ArrayList<>(users);
         notifyDataSetChanged();
     }
 
@@ -97,38 +75,42 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
         notifyItemChanged(previousSelected);
     }
 
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.longClickListener = listener;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.clickListener = listener;
+    }
+
+    public User getUser(int position) {
+        return users.get(position);
+    }
+
     class UserViewHolder extends RecyclerView.ViewHolder {
         private TextView nameTextView;
         private TextView emailTextView;
         private ImageView avatarImageView;
-        private Button editButton;
-        private Button deleteButton;
-
         private View itemBackground;
-
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.nameTextView);
             emailTextView = itemView.findViewById(R.id.emailTextView);
             avatarImageView = itemView.findViewById(R.id.avatarImageView);
-            editButton = itemView.findViewById(R.id.editButton);
-            deleteButton = itemView.findViewById(R.id.deleteButton);
             itemBackground = itemView.findViewById(R.id.itemBackground);
-
-
             itemView.setOnLongClickListener(v -> {
                 int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
+                if (position != RecyclerView.NO_POSITION && longClickListener != null) {
+                    setSelectedPosition(position);
                     longClickListener.onItemLongClick(position);
                     return true;
                 }
                 return false;
             });
-
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
+                if (position != RecyclerView.NO_POSITION && clickListener != null) {
                     clickListener.onItemClick(position);
                 }
             });
@@ -142,22 +124,9 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
                     .circleCrop()
                     .into(avatarImageView);
 
-            editButton.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-            deleteButton.setVisibility(isSelected ? View.VISIBLE : View.GONE);
             itemBackground.setBackgroundColor(isSelected ?
                     ContextCompat.getColor(itemView.getContext(), R.color.selected_item_color) :
                     ContextCompat.getColor(itemView.getContext(), android.R.color.transparent));
-            editButton.setOnClickListener(v -> {
-                if (editClickListener != null) {
-                    editClickListener.onUserEditClick(user);
-                }
-            });
-
-            deleteButton.setOnClickListener(v -> {
-                if (deleteClickListener != null) {
-                    deleteClickListener.onUserDeleteClick(user);
-                }
-            });
         }
     }
 }

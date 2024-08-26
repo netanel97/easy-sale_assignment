@@ -28,31 +28,35 @@ public class MainActivity extends AppCompatActivity {
     private UserRecyclerViewAdapter userAdapter;
     private RecyclerView recyclerView;
     private FloatingActionButton add_user_fab;
+    private View bottomActionBar;
+    private ImageButton actionEdit;
+    private ImageButton actionDelete;
+    private User selectedUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initButtons();
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         userAdapter = new UserRecyclerViewAdapter(this);
         recyclerView.setAdapter(userAdapter);
-        add_user_fab = findViewById(R.id.add_user_fab);
+        bottomActionBar.setOnClickListener(v -> {
+        });
         // Observe users LiveData
         userViewModel.getUsers().observe(this, users -> {
             if (users != null) {
                 userAdapter.setUsers(users);
             }
         });
-        // Observe error LiveData
         userViewModel.getError().observe(this, error -> {
             if (error != null && !error.isEmpty()) {
                 showToast(error);
                 userViewModel.clearError();
             }
         });
-
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -61,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 int visibleItemCount = layoutManager.getChildCount();
                 int totalItemCount = layoutManager.getItemCount();
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-
                 if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                         && firstVisibleItemPosition >= 0) {
                     userViewModel.loadUsers();
@@ -71,12 +74,45 @@ public class MainActivity extends AppCompatActivity {
 
         userViewModel.loadUsers();
         add_user_fab.setOnClickListener(view -> openUserDialog(null));
-        userAdapter.setItemClickListener(position -> deselectItem(), position -> {
-            userAdapter.setSelectedPosition(position);
-            add_user_fab.setVisibility(View.GONE);
-        }, user -> deleteUser(user), user -> openUserDialog(user));
+
+        userAdapter.setOnItemLongClickListener(this::onItemLongClick);
+        userAdapter.setOnItemClickListener(position -> deselectItem());
+
+
+        actionEdit.setOnClickListener(v -> {
+            if (selectedUser != null) {
+                openUserDialog(selectedUser);
+            }
+        });
+
+        actionDelete.setOnClickListener(v -> {
+            if (selectedUser != null) {
+                deleteUser(selectedUser);
+            }
+        });
     }
 
+
+    private void onItemLongClick(int position) {
+        selectedUser = userAdapter.getUser(position);
+        bottomActionBar.setVisibility(View.VISIBLE);
+        add_user_fab.setVisibility(View.GONE);
+    }
+
+    private void initButtons() {
+        bottomActionBar = findViewById(R.id.bottomActionBar);
+        recyclerView = findViewById(R.id.recyclerView);
+        add_user_fab = findViewById(R.id.add_user_fab);
+        actionDelete = findViewById(R.id.actionDelete);
+        actionEdit = findViewById(R.id.actionEdit);
+    }
+
+    private void deselectItem() {
+        selectedUser = null;
+        bottomActionBar.setVisibility(View.GONE);
+        add_user_fab.setVisibility(View.VISIBLE);
+        userAdapter.clearSelection();
+    }
 
     public void deleteUser(User user) {
         new AlertDialog.Builder(this)
@@ -89,13 +125,6 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton("No", null)
                 .show();
     }
-
-
-    private void deselectItem() {
-        userAdapter.clearSelection();
-        add_user_fab.setVisibility(View.VISIBLE);
-    }
-
 
     private void openUserDialog(User user) {
         boolean isEditing = user != null;
@@ -151,7 +180,6 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-
     private boolean validateInput(String email, String firstName, String lastName, String avatar) {
         if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             showToast("Please enter a valid email address");
@@ -181,9 +209,7 @@ public class MainActivity extends AppCompatActivity {
         firstNameEditText.setText(user.getFirst_name() != null ? user.getFirst_name() : "");
         lastNameEditText.setText(user.getLast_name() != null ? user.getLast_name() : "");
         avatarEditText.setText(user.getAvatar() != null ? user.getAvatar() : "");
-
     }
-
 
     @Override
     protected void onDestroy() {
