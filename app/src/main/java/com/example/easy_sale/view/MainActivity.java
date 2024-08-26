@@ -21,6 +21,7 @@ import com.example.easy_sale.R;
 import com.example.easy_sale.viewModel.UserViewModel;
 import com.example.easy_sale.model.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -139,13 +140,13 @@ public class MainActivity extends AppCompatActivity {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_user, null);
         builder.setView(dialogView);
 
-        EditText emailEditText = dialogView.findViewById(R.id.emailEditText);
-        EditText firstNameEditText = dialogView.findViewById(R.id.firstNameEditText);
-        EditText lastNameEditText = dialogView.findViewById(R.id.lastNameEditText);
-        EditText avatarEditText = dialogView.findViewById(R.id.avatarEditText);
+        TextInputLayout emailInputLayout = dialogView.findViewById(R.id.emailInputLayout);
+        TextInputLayout firstNameInputLayout = dialogView.findViewById(R.id.firstNameInputLayout);
+        TextInputLayout lastNameInputLayout = dialogView.findViewById(R.id.lastNameInputLayout);
+        TextInputLayout avatarInputLayout = dialogView.findViewById(R.id.avatarInputLayout);
 
         if (isEditing) {
-            initEditText(user, emailEditText, firstNameEditText, lastNameEditText, avatarEditText);
+            initInputLayouts(user, emailInputLayout, firstNameInputLayout, lastNameInputLayout, avatarInputLayout);
         }
 
         ImageButton closeButton = dialogView.findViewById(R.id.closeButton);
@@ -158,10 +159,10 @@ public class MainActivity extends AppCompatActivity {
         dialog.setOnShowListener(dialogInterface -> {
             Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             positiveButton.setOnClickListener(view -> {
-                String email = emailEditText.getText().toString().trim();
-                String firstName = firstNameEditText.getText().toString().trim();
-                String lastName = lastNameEditText.getText().toString().trim();
-                String avatar = avatarEditText.getText().toString().trim();
+                String email = getTextFromInputLayout(emailInputLayout);
+                String firstName = getTextFromInputLayout(firstNameInputLayout);
+                String lastName = getTextFromInputLayout(lastNameInputLayout);
+                String avatar = getTextFromInputLayout(avatarInputLayout);
 
                 if (validateInput(email, firstName, lastName, avatar)) {
                     if (isEditing) {
@@ -185,6 +186,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+    private void initInputLayouts(User user, TextInputLayout emailInput, TextInputLayout firstNameInput,
+                                  TextInputLayout lastNameInput, TextInputLayout avatarInput) {
+        if (emailInput.getEditText() != null) emailInput.getEditText().setText(user.getEmail());
+        if (firstNameInput.getEditText() != null) firstNameInput.getEditText().setText(user.getFirst_name());
+        if (lastNameInput.getEditText() != null) lastNameInput.getEditText().setText(user.getLast_name());
+        if (avatarInput.getEditText() != null) avatarInput.getEditText().setText(user.getAvatar());
+    }
+
+    private String getTextFromInputLayout(TextInputLayout inputLayout) {
+        return inputLayout.getEditText() != null ? inputLayout.getEditText().getText().toString().trim() : "";
     }
 
     private boolean validateInput(String email, String firstName, String lastName, String avatar) {

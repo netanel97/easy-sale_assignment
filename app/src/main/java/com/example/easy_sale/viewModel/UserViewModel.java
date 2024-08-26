@@ -21,7 +21,7 @@ public class UserViewModel extends AndroidViewModel {
 
     public UserViewModel(Application application) {
         super(application);
-        repository = new UserRepository(application);
+        this.repository = new UserRepository(application);
         this.users = new MutableLiveData<>();
         this.error = new MutableLiveData<>();
     }

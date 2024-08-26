@@ -32,7 +32,7 @@ dependencies {
 
 
     implementation ("com.google.code.gson:gson:2.10.1")
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:retrofit:2.11.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
@@ -44,6 +44,8 @@ dependencies {
     testImplementation("androidx.room:room-testing:$room_version")
     implementation("androidx.room:room-paging:$room_version")
     implementation ("com.github.bumptech.glide:glide:4.12.0")
+    implementation ("com.google.android.material:material:1.5.0")
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
