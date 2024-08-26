@@ -1,15 +1,19 @@
 package com.example.easy_sale.view;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
+import android.widget.ImageView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.easy_sale.R;
 import com.example.easy_sale.viewModel.UserViewModel;
 import com.example.easy_sale.model.User;
@@ -33,7 +38,12 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton actionEdit;
     private ImageButton actionDelete;
     private User selectedUser;
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
 
+    private static final int DEFAULT_AVATAR_RESOURCE = R.drawable.ic_default_avatar;
+
+    private ImageView avatarPreview;
+    private Uri selectedImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +56,20 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(userAdapter);
         bottomActionBar.setOnClickListener(v -> {
         });
+
+        // Register photo picker activity launcher
+        pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+            if (uri != null) {
+                Log.d("PhotoPicker", "Selected URI: " + uri);
+                selectedImageUri = uri;
+                if (avatarPreview != null) {
+                    Glide.with(this).load(uri).into(avatarPreview);
+                }
+            } else {
+                Log.d("PhotoPicker", "No media selected");
+            }
+        });
+
         // Observe users LiveData
         userViewModel.getUsers().observe(this, users -> {
             if (users != null) {
@@ -80,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         userAdapter.setOnItemLongClickListener(this::onItemLongClick);
         userAdapter.setOnItemClickListener(position -> deselectItem());
 
-
         actionEdit.setOnClickListener(v -> {
             if (selectedUser != null) {
                 openUserDialog(selectedUser);
@@ -93,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void showErrorDialog(String message) {
         new AlertDialog.Builder(this)
                 .setTitle("Error")
@@ -143,11 +167,19 @@ public class MainActivity extends AppCompatActivity {
         TextInputLayout emailInputLayout = dialogView.findViewById(R.id.emailInputLayout);
         TextInputLayout firstNameInputLayout = dialogView.findViewById(R.id.firstNameInputLayout);
         TextInputLayout lastNameInputLayout = dialogView.findViewById(R.id.lastNameInputLayout);
-        TextInputLayout avatarInputLayout = dialogView.findViewById(R.id.avatarInputLayout);
+        avatarPreview = dialogView.findViewById(R.id.avatarPreview);
+        Button uploadAvatarButton = dialogView.findViewById(R.id.uploadAvatarButton);
 
         if (isEditing) {
-            initInputLayouts(user, emailInputLayout, firstNameInputLayout, lastNameInputLayout, avatarInputLayout);
+            initInputLayouts(user, emailInputLayout, firstNameInputLayout, lastNameInputLayout);
+            Glide.with(this).load(user.getAvatar()).placeholder(R.drawable.ic_default_avatar).into(avatarPreview);
+            selectedImageUri = Uri.parse(user.getAvatar());
+        } else {
+            Glide.with(this).load(DEFAULT_AVATAR_RESOURCE).into(avatarPreview);
+            selectedImageUri = null;
         }
+
+        uploadAvatarButton.setOnClickListener(v -> launchPhotoPicker());
 
         ImageButton closeButton = dialogView.findViewById(R.id.closeButton);
         builder.setTitle(isEditing ? "Edit User" : "Add New User");
@@ -162,22 +194,16 @@ public class MainActivity extends AppCompatActivity {
                 String email = getTextFromInputLayout(emailInputLayout);
                 String firstName = getTextFromInputLayout(firstNameInputLayout);
                 String lastName = getTextFromInputLayout(lastNameInputLayout);
-                String avatar = getTextFromInputLayout(avatarInputLayout);
 
-                if (validateInput(email, firstName, lastName, avatar)) {
+                if (validateInput(email, firstName, lastName)) {
+                    String avatarUri = (selectedImageUri != null) ? selectedImageUri.toString()
+                            : "android.resource://" + getPackageName() + "/" + DEFAULT_AVATAR_RESOURCE;
+
                     if (isEditing) {
-                        user.setEmail(email);
-                        user.setFirst_name(firstName);
-                        user.setLast_name(lastName);
-                        user.setAvatar(avatar);
-                        userViewModel.updateUser(user);
+                        updateExistingUser(user, email, firstName, lastName, avatarUri);
+
                     } else {
-                        User newUser = new User();
-                        newUser.setEmail(email);
-                        newUser.setFirst_name(firstName);
-                        newUser.setLast_name(lastName);
-                        newUser.setAvatar(avatar);
-                        userViewModel.createUser(newUser);
+                        createNewUser(email, firstName, lastName, avatarUri);
                     }
                     deselectItem();
                     dialog.dismiss();
@@ -187,19 +213,44 @@ public class MainActivity extends AppCompatActivity {
 
         dialog.show();
     }
+
+    private void updateExistingUser(User user, String email, String firstName, String lastName, String avatarUri) {
+        user.setEmail(email);
+        user.setFirst_name(firstName);
+        user.setLast_name(lastName);
+        user.setAvatar(avatarUri);
+        userViewModel.updateUser(user);
+    }
+
+    private void createNewUser(String email, String firstName, String lastName, String avatarUri) {
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setFirst_name(firstName);
+        newUser.setLast_name(lastName);
+        newUser.setAvatar(avatarUri);
+        userViewModel.createUser(newUser);
+    }
+
+    private void launchPhotoPicker() {
+        pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build());
+    }
+
     private void initInputLayouts(User user, TextInputLayout emailInput, TextInputLayout firstNameInput,
-                                  TextInputLayout lastNameInput, TextInputLayout avatarInput) {
+                                  TextInputLayout lastNameInput) {
         if (emailInput.getEditText() != null) emailInput.getEditText().setText(user.getEmail());
-        if (firstNameInput.getEditText() != null) firstNameInput.getEditText().setText(user.getFirst_name());
-        if (lastNameInput.getEditText() != null) lastNameInput.getEditText().setText(user.getLast_name());
-        if (avatarInput.getEditText() != null) avatarInput.getEditText().setText(user.getAvatar());
+        if (firstNameInput.getEditText() != null)
+            firstNameInput.getEditText().setText(user.getFirst_name());
+        if (lastNameInput.getEditText() != null)
+            lastNameInput.getEditText().setText(user.getLast_name());
     }
 
     private String getTextFromInputLayout(TextInputLayout inputLayout) {
         return inputLayout.getEditText() != null ? inputLayout.getEditText().getText().toString().trim() : "";
     }
 
-    private boolean validateInput(String email, String firstName, String lastName, String avatar) {
+    private boolean validateInput(String email, String firstName, String lastName) {
         if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             showErrorDialog("Please enter a valid email address");
             return false;
@@ -212,19 +263,7 @@ public class MainActivity extends AppCompatActivity {
             showErrorDialog("Last name cannot be empty");
             return false;
         }
-        if (TextUtils.isEmpty(avatar) || !Patterns.WEB_URL.matcher(avatar).matches()) {
-            showErrorDialog("Please enter a valid URL for the avatar");
-            return false;
-        }
         return true;
-    }
-
-
-    private void initEditText(User user, EditText emailEditText, EditText firstNameEditText, EditText lastNameEditText, EditText avatarEditText) {
-        emailEditText.setText(user.getEmail() != null ? user.getEmail() : "");
-        firstNameEditText.setText(user.getFirst_name() != null ? user.getFirst_name() : "");
-        lastNameEditText.setText(user.getLast_name() != null ? user.getLast_name() : "");
-        avatarEditText.setText(user.getAvatar() != null ? user.getAvatar() : "");
     }
 
     @Override

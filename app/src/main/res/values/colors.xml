@@ -5,5 +5,7 @@
     <color name="selected_item_color">#E5F5E7</color>
     <color name="button_color">#54D161</color>
 
+    <color name="primary_color_buttons">#F3E5F5</color>
+
 
 </resources>

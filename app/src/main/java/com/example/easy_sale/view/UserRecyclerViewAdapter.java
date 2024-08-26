@@ -121,6 +121,8 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<UserRecyclerVi
             emailTextView.setText(user.getEmail());
             Glide.with(itemView.getContext())
                     .load(user.getAvatar())
+                    .placeholder(R.drawable.ic_default_avatar)
+                    .error(R.drawable.ic_default_avatar)
                     .circleCrop()
                     .into(avatarImageView);
 
