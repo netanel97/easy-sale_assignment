@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("PhotoPicker", "Selected URI: " + uri);
                 selectedImageUri = uri;
                 if (avatarPreview != null) {
-                    Glide.with(this).load(uri).into(avatarPreview);
+                    Glide.with(this).load(uri).circleCrop().into(avatarPreview);
                 }
             } else {
                 Log.d("PhotoPicker", "No media selected");
@@ -172,10 +172,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (isEditing) {
             initInputLayouts(user, emailInputLayout, firstNameInputLayout, lastNameInputLayout);
-            Glide.with(this).load(user.getAvatar()).placeholder(R.drawable.ic_default_avatar).into(avatarPreview);
+            Glide.with(this).load(user.getAvatar()).circleCrop().placeholder(R.drawable.ic_default_avatar).into(avatarPreview);
             selectedImageUri = Uri.parse(user.getAvatar());
         } else {
-            Glide.with(this).load(DEFAULT_AVATAR_RESOURCE).into(avatarPreview);
+            Glide.with(this).load(DEFAULT_AVATAR_RESOURCE).circleCrop().into(avatarPreview);
             selectedImageUri = null;
         }
 
