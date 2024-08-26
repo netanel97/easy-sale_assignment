@@ -2,7 +2,7 @@
 
 ## Overview
 
-Easy Sale is an Android application that demonstrates user management functionality. It allows users to view, create, edit, and delete user profiles. The app uses a combination of local storage and remote API calls to manage user data efficiently.
+Android application that demonstrates user management functionality. It allows users to view, create, edit, and delete user profiles. The app uses a combination of local storage and remote API calls to manage user data efficiently.
 
 ## Features
 
@@ -12,7 +12,6 @@ Easy Sale is an Android application that demonstrates user management functional
 - Delete users
 - Long-press selection for bulk actions
 - Error handling with dialog popups
-- Infinite scrolling to load more users
 
 ## Architecture
 
@@ -65,6 +64,37 @@ The app uses dialog popups to display error messages to the user, providing a be
 - Improve UI/UX with material design components
 - Implement data sync between local and remote storage
 
-## Contributing
 
-Contributions to the Easy Sale app are welcome. Please feel free to submit a Pull Request.
+
+## Database Schema
+
+The database schema consists of a single table for users:
+
+* users table:
+  * id: Integer, primary key, autoincrement
+  * first_name: String
+  * last_name: String
+  * email: String
+  * avatar: String
+  * updatedAt: String (timestamp)
+  * createdAt: String (timestamp)
+    
+* deleted_users table:
+  * userId: Integer, primary key
+
+```mermaid
+erDiagram
+    USERS {
+        int id PK
+        string first_name
+        string last_name
+        string email
+        string avatar
+        string updatedAt
+        string createdAt
+    }
+    DELEATED_USERS {
+        int userId PK
+     
+    }
+```
