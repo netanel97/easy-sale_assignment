@@ -53,10 +53,11 @@ public class MainActivity extends AppCompatActivity {
         });
         userViewModel.getError().observe(this, error -> {
             if (error != null && !error.isEmpty()) {
-                showToast(error);
+                showErrorDialog(error);
                 userViewModel.clearError();
             }
         });
+
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -91,7 +92,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    private void showErrorDialog(String message) {
+        new AlertDialog.Builder(this)
+                .setTitle("Error")
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show();
+    }
 
     private void onItemLongClick(int position) {
         selectedUser = userAdapter.getUser(position);
@@ -182,27 +189,24 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean validateInput(String email, String firstName, String lastName, String avatar) {
         if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showToast("Please enter a valid email address");
+            showErrorDialog("Please enter a valid email address");
             return false;
         }
         if (TextUtils.isEmpty(firstName)) {
-            showToast("First name cannot be empty");
+            showErrorDialog("First name cannot be empty");
             return false;
         }
         if (TextUtils.isEmpty(lastName)) {
-            showToast("Last name cannot be empty");
+            showErrorDialog("Last name cannot be empty");
             return false;
         }
         if (TextUtils.isEmpty(avatar) || !Patterns.WEB_URL.matcher(avatar).matches()) {
-            showToast("Please enter a valid URL for the avatar");
+            showErrorDialog("Please enter a valid URL for the avatar");
             return false;
         }
         return true;
     }
 
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
 
     private void initEditText(User user, EditText emailEditText, EditText firstNameEditText, EditText lastNameEditText, EditText avatarEditText) {
         emailEditText.setText(user.getEmail() != null ? user.getEmail() : "");

@@ -51,8 +51,8 @@ public class UserRepository {
 
             @Override
             public void onFailure(Call<UserResponse> call, Throwable t) {
-                callback.onError("Network error: " + t.getMessage());
-            }
+                callback.onError("Connection lost, You have lost connection with the server." +
+                        "\nCheck your internet connection and try again.");            }
         });
     }
 
@@ -101,8 +101,8 @@ public class UserRepository {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                callback.onError("Network error: " + t.getMessage());
-            }
+                callback.onError("Connection lost, You have lost connection with the server." +
+                        "Check your internet connection and try again.");            }
         });
     }
 
@@ -145,8 +145,8 @@ public class UserRepository {
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                callback.onError("Network error: " + t.getMessage());
-            }
+                callback.onError("Connection lost, You have lost connection with the server." +
+                        "Check your internet connection and try again.");            }
         });
     }
 
@@ -190,7 +190,8 @@ public class UserRepository {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                callback.onError("Network error: " + t.getMessage());
+                callback.onError("Connection lost, You have lost connection with the server." +
+                        "Check your internet connection and try again.");
             }
         });
     }
