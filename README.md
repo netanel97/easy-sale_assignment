@@ -12,7 +12,6 @@ Easy Sale is an Android application that demonstrates user management functional
 - Delete users
 - Long-press selection for bulk actions
 - Error handling with dialog popups
-- Infinite scrolling to load more users
 
 ## Architecture
 
