@@ -64,3 +64,37 @@ The app uses dialog popups to display error messages to the user, providing a be
 - Improve UI/UX with material design components
 - Implement data sync between local and remote storage
 
+
+
+## Database Schema
+
+The database schema consists of a single table for users:
+
+* users table:
+  * id: Integer, primary key, autoincrement
+  * first_name: String
+  * last_name: String
+  * email: String
+  * avatar: String
+  * updatedAt: String (timestamp)
+  * createdAt: String (timestamp)
+    
+* deleted_users table:
+  * userId: Integer, primary key, autoincrement
+
+```mermaid
+erDiagram
+    USERS {
+        int id PK
+        string first_name
+        string last_name
+        string email
+        string avatar
+        string updatedAt
+        string createdAt
+    }
+    DELEATED_USERS {
+        int userId PK
+     
+    }
+```
