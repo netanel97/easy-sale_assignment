@@ -80,7 +80,7 @@ The database schema consists of a single table for users:
   * createdAt: String (timestamp)
     
 * deleted_users table:
-  * userId: Integer, primary key, autoincrement
+  * userId: Integer, primary key
 
 ```mermaid
 erDiagram
