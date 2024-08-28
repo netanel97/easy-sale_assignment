@@ -23,7 +23,7 @@ The app follows the MVVM (Model-View-ViewModel) architecture pattern and uses th
 - **API**: Retrofit for network calls
 
 ## Dependencies
-
+- Java11
 - AndroidX
 - Lifecycle components
 - RecyclerView
