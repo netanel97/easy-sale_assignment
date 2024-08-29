@@ -98,3 +98,12 @@ erDiagram
      
     }
 ```
+
+
+## Challenges
+ 1. Room Database with Pagination: Setting up the Room database to work efficiently with paginated data required careful design. This included creating appropriate entity structures, writing efficient 
+    queries in the DAO, and ensuring smooth interaction between the local database cache and the remote API data.
+ 2.Testing MVVM Components: Implementing comprehensive unit tests and UI tests for MVVM components, especially for ViewModels and Repository classes, required a deep understanding of testing frameworks 
+   and MVVM principles.
+ 3. Responsive UI for iPad: Designing a responsive layout that works well on both phones and iPads presented unique challenges. This involved creating flexible layouts, using appropriate scaling for UI 
+    elements, and ensuring that the user experience remains intuitive and visually appealing on larger screens.
