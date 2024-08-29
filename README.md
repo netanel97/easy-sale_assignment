@@ -80,7 +80,7 @@ The database schema consists of a single table for users:
   * createdAt: String (timestamp)
     
 * deleted_users table:
-  * userId: Integer, primary key
+  * userId: Integer, foreign key
 
 ```mermaid
 erDiagram
@@ -94,7 +94,7 @@ erDiagram
         string createdAt
     }
     DELEATED_USERS {
-        int userId PK
+        int userId FK
      
     }
 ```
