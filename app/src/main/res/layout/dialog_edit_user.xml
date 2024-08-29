@@ -4,12 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:padding="@dimen/panel_margin">
 
     <ImageButton
         android:id="@+id/closeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/ImageButtonWidthHeight"
+        android:layout_height="@dimen/ImageButtonWidthHeight"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,21 +20,22 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/closeButton"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="@dimen/LinearLayoutMargin">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/emailInputLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:hint="Email"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="@dimen/LinearLayoutMargin">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"/>
+                android:layout_height="match_parent"
+                android:inputType="textEmailAddress"
+                android:textSize="@dimen/emailTextSize"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -44,13 +45,14 @@
             android:layout_height="wrap_content"
             android:hint="First Name"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="@dimen/LinearLayoutMargin">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/firstNameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"/>
+                android:inputType="textPersonName"
+                android:textSize="@dimen/nameTextSize"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -60,13 +62,14 @@
             android:layout_height="wrap_content"
             android:hint="Last Name"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="@dimen/LinearLayoutMargin">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/lastNameEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"/>
+                android:layout_height="match_parent"
+                android:inputType="textPersonName"
+                android:textSize="@dimen/nameTextSize"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -75,12 +78,12 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="@dimen/LinearLayoutMargin">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/avatarPreview"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="@dimen/avatar_edit_image"
+                android:layout_height="@dimen/avatar_edit_image"
                 android:scaleType="centerCrop"/>
 
             <Button
@@ -89,9 +92,9 @@
                 android:layout_height="wrap_content"
                 android:text="Upload Avatar"
                 android:backgroundTint="@color/primary_color_buttons"
-
                 android:textColor="#0E0E0E"
-                android:layout_marginStart="16dp"/>
+                android:layout_marginStart="@dimen/LinearLayoutMargin"
+                android:textSize="@dimen/nameTextSize"/>
 
         </LinearLayout>
 

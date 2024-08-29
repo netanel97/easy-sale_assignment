@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="panel_margin">24dp</dimen>
+    <dimen name="avatar_image_size">100dp</dimen>
+    <dimen name="carElevation">8dp</dimen>
+    <dimen name="LinearLayoutMargin">16dp</dimen>
+    <dimen name="ImageButtonWidthHeight">70dp</dimen>
+    <dimen name="IconPadding">12dp</dimen>
+    <dimen name="nameTextSize">30sp</dimen>
+    <dimen name="emailTextSize">30sp</dimen>
+    <dimen name="avatar_edit_image">100dp</dimen>
+
+
+</resources>
